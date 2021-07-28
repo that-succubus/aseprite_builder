@@ -103,7 +103,7 @@ jobs:
         run: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=x64
       - name: (Windows) Setting Visual Studio build environment variables and paths
         if: matrix.os == 'windows-latest'
-        uses: seanmiddleditch/gha-setup-vsdevenv@v1
+        uses: seanmiddleditch/gha-setup-vsdevenv@v3
       - name: (Windows) Run CMake
         if: matrix.os == 'windows-latest'
         working-directory: aseprite/build
