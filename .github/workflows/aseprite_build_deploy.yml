@@ -76,6 +76,7 @@ jobs:
       - name: (macOS) Install dependencies
         if: matrix.os == 'macOS-latest'
         run: brew install ninja p7zip
+
       - name: Get Skia from cache
         id: skia-cache
         uses: actions/cache@v2
@@ -87,18 +88,21 @@ jobs:
         run: |
           curl -o Skia-${{ runner.os }}-Release-X64.zip -L https://github.com/aseprite/skia/releases/download/m81-b607b32047/Skia-${{ runner.os }}-Release-X64.zip
           unzip Skia-${{ runner.os }}-Release-X64.zip -d skia
+
       - name: Download Aseprite release
         run: |
           curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
           unzip Aseprite-source.zip -d aseprite
           mkdir -p aseprite/build
+
       - name: (Windows) Set architecture for the produced binary
         if: matrix.os == 'windows-latest'
         shell: cmd
         run: call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\Common7\Tools\VsDevCmd.bat" -arch=x64
       - name: (Windows) Setting Visual Studio build environment variables and paths
         if: matrix.os == 'windows-latest'
-        uses: seanmiddleditch/gha-setup-vsdevenv@v3
+        uses: ilammy/msvc-dev-cmd@v1
+
       - name: (Windows) Run CMake
         if: matrix.os == 'windows-latest'
         working-directory: aseprite/build
@@ -112,6 +116,7 @@ jobs:
         if: matrix.os == 'macOS-latest'
         working-directory: aseprite/build
         run: cmake -DCMAKE_BUILD_TYPE=${{ env.BUILD_TYPE }} -DCMAKE_OSX_ARCHITECTURES=x86_64 -DCMAKE_OSX_DEPLOYMENT_TARGET=10.9 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.15.sdk -DLAF_BACKEND=skia -DSKIA_DIR=../../skia -DSKIA_LIBRARY_DIR=../../skia/out/Release-x64 -G Ninja ..
+
       - name: Run Ninja
         working-directory: aseprite/build
         run: ninja aseprite
@@ -119,6 +124,7 @@ jobs:
         working-directory: aseprite/build/bin
         shell: bash
         run: rm -f gen modp_b64_gen gen.exe gen.exe.manifest modp_b64_gen.exe modp_b64_gen.exe.manifest
+
       - name: (Windows) Make portable zip
         working-directory: aseprite/build/bin
         run: echo '# This file is here so Aseprite behaves as a portable program' > aseprite.ini
