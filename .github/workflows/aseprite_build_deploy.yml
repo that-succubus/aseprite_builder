@@ -40,7 +40,7 @@ jobs:
         key: cached_version
     - name: Should we start new build?
       id: should_build
-      if: steps.version_check.outputs.cache-hit != 'true'
+      # if: steps.version_check.outputs.cache-hit != 'true'
       run: echo "::set-output name=should_build::true"
     - name: Create Release
       id: create_release
@@ -63,24 +63,19 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
        matrix:
+         # os: [windows-latest, ubuntu-latest, macOS-latest]
          os: [windows-latest]
        fail-fast: false    
     steps:
       - name: (Windows) Install dependencies
         if: matrix.os == 'windows-latest'
-        uses: seanmiddleditch/gha-setup-ninja@v1
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
+        uses: seanmiddleditch/gha-setup-ninja@v3
       - name: (Ubuntu) Install dependencies
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt install -y cmake ninja-build libxcursor-dev libxi-dev libgl1-mesa-dev
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       - name: (macOS) Install dependencies
         if: matrix.os == 'macOS-latest'
         run: brew install ninja p7zip
-        env:
-          ACTIONS_ALLOW_UNSECURE_COMMANDS: 'true'
       - name: Get Skia from cache
         id: skia-cache
         uses: actions/cache@v2
