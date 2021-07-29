@@ -7,6 +7,7 @@ To adhere to the EULA of Aseprite, this workflow does not upload the binary in a
 1. Clone or fork this repo
 2. Edit /.github/workflows/aseprite_build_deploy.yml
 3. Find and edit the **os** line and remove the os you don't need.
+
         strategy:
             matrix:
                 os: [windows-latest, ubuntu-latest, macOS-latest]
