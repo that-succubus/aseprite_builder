@@ -1,14 +1,12 @@
 # What is it 
 Automated workflow for GitHub Actions which builds Aseprite for Windows, Linux, macOS.</br>
 By using GitHub actions there is no need for manual compilation and it does not contain malware.</br>
-To adhere to the EULA of Aseprite, this workflow does not upload the binary in a public accessible space like artifacts.</br>
-The release can be found within the releases as a draft (only visible for repo owner).
+To adhere to the EULA of Aseprite, this workflow does not upload the binary in a public accessible space.</br>
 
 # How to use
 1. Clone or fork this repo
 2. Edit /.github/workflows/aseprite_build_deploy.yml
 3. Find and edit the **os** line and remove the os you don't need.
-
         strategy:
             matrix:
                 os: [windows-latest, ubuntu-latest, macOS-latest]
@@ -23,7 +21,7 @@ This workflow follows the instructions as described at [Aseprite repo](https://g
 3. Start building
 4. Get Skia from cache, if not in cache then download it
 5. Use CMake and Ninja to compile
-6. Create zip of release and upload to draft Release from step 2
+6. Create zip of release and upload to your own action artifact
 
 # Build times
 Every month you have 2000 free minutes from GitHub.</br>
