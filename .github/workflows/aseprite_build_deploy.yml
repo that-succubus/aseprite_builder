@@ -2,7 +2,7 @@ name: Build and deploy Aseprite
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 0 * * 1'
   push:
     branches:
       - master
@@ -133,15 +133,3 @@ jobs:
         with:
           name: Aseprite
           path: aseprite/build/bin/
-      # - name: Create release
-      #   working-directory: aseprite/build/bin
-      #   run: 7z -tzip a Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip *
-      # - name: Upload release
-      #   uses: actions/upload-release-asset@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      #   with:
-      #     upload_url: ${{ needs.check-version.outputs.upload_url }}
-      #     asset_path: aseprite/build/bin/Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
-      #     asset_name: Aseprite-${{ needs.check-version.outputs.latest_tag }}-${{ runner.os }}.zip
-      #     asset_content_type: application/zip
