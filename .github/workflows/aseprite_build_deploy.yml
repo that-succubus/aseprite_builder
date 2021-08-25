@@ -9,28 +9,28 @@ on:
 
 env:
   BUILD_TYPE: Release
-  
+
 jobs:
   check-version:
     name: Check latest Aseprite release
     runs-on: ubuntu-latest
     outputs:
-      download_url: ${{ steps.version_info.outputs.download_url }}
+      # download_url: ${{ steps.version_info.outputs.download_url }}
       latest_tag: ${{ steps.version_info.outputs.latest_tag }}
       should_build: ${{ steps.should_build.outputs.should_build }}
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
+      # upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
     - name: Get latest version info
       id: version_info
       run: |
         data=$(curl -sL https://api.github.com/repos/aseprite/aseprite/releases/latest)
         LATEST_TAG=$(echo "${data}" | jq -r '.tag_name')
-        DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
+        # DOWNLOAD_URL=$(echo "${data}" | jq -r '.assets[].browser_download_url')
         VERSION_INFO=$(echo "${data}" | jq -r '.body')
-        
+
         echo "${LATEST_TAG}" > ${LATEST_TAG}.txt
         echo "::set-output name=latest_tag::${LATEST_TAG}"
-        echo "::set-output name=download_url::${DOWNLOAD_URL}"
+        # echo "::set-output name=download_url::${DOWNLOAD_URL}"
         echo "::set-output name=version_info::${VERSION_INFO}"
     - name: Load version from cache
       id: version_check
@@ -42,20 +42,7 @@ jobs:
       id: should_build
       if: steps.version_check.outputs.cache-hit != 'true'
       run: echo "::set-output name=should_build::true"
-    - name: Create Release
-      id: create_release
-      if: steps.should_build.outputs.should_build
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ steps.version_info.outputs.latest_tag }}
-        release_name: Release Aseprite ${{ steps.version_info.outputs.latest_tag }}
-        body: |
-          ${{ steps.version_info.outputs.version_info }}
-        draft: true
-        prerelease: false
-  
+
   build-aseprite:
     name: Build Aseprite
     needs: check-version
@@ -90,11 +77,20 @@ jobs:
           unzip Skia-${{ runner.os }}-Release-X64.zip -d skia
 
       - name: Download Aseprite release
-        run: |
-          curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
-          unzip Aseprite-source.zip -d aseprite
-          mkdir -p aseprite/build
-
+        uses: actions/checkout@v2
+        with:
+          repository: aseprite/aseprite
+          ref: ${{ needs.check-version.outputs.latest_tag }}
+          path: 'aseprite'
+          submodules: 'recursive'
+        # run: |
+        #   curl -o Aseprite-source.zip -L ${{ needs.check-version.outputs.download_url }}
+        #   unzip Aseprite-source.zip -d aseprite
+      - name: Create build folder
+        run: mkdir -p aseprite/build
+      - name: Use ccache
+        if: matrix.os == 'ubuntu-latest'
+        uses: hendrikmuhs/ccache-action@v1
       - name: (Windows) Set architecture for the produced binary
         if: matrix.os == 'windows-latest'
         shell: cmd
@@ -131,5 +127,5 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: Aseprite
+          name: Aseprite-${{ needs.check-version.outputs.latest_tag }}
           path: aseprite/build/bin/
